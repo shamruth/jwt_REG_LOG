@@ -1,0 +1,40 @@
+<form>
+    <input type="text" id="UN" placeholder="ENTERUSERNAME">
+    <input type="text" id="EM" placeholder="ENTEREMAIL">
+    <button type="button" onclick="LOGIN()">LOGIN</button>
+</form>
+<script>
+    async function LOGIN()
+    {
+        const un=document.getElementById("UN").value;
+        const em=document.getElementById("EM").value;
+        login_data={
+            USERNAME:un,
+            EMAIL:em
+        };
+        send_data=await fetch('/LOGIN',
+            {
+                method:"post",
+                headers:{"Content-Type":"application/json"},
+                body:JSON.stringify(login_data),
+            });
+        if(send_data.ok)
+        {
+            const data=await send_data.json();
+            todo_response=await fetch('/TODO',
+                {
+                    method:"get",
+                    headers: 
+                    {
+                        "Authorization": `Bearer ${data}` // assuming `data` contains your JWT
+                        //"Content-Type": "application/json" // optional if sending JSON
+                    }
+                });
+                window.location.href="TODO.html";
+        }
+        else
+        {
+            alert("NOTVALID");
+        }
+    }
+</script>
