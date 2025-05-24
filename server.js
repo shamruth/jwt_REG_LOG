@@ -103,7 +103,8 @@ app.post('/LOGIN',async(req,res)=>
 app.use(express.static(path.join(__dirname))); 
 app.post('/TODO',verifyToken,(req,res)=>
 {
-    res.status(200).send("SUCCESFULLY LOGGED IN")
+    res.sendFile(path.join(__dirname,"TODO.html"))
+    //res.status(200).send("SUCCESFULLY LOGGED IN")
     console.log("TODO ACCESSED");
 })
 
