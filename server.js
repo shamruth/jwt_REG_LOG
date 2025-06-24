@@ -29,6 +29,14 @@ function verifyToken(req, res, next) {
     }
 }
 
+let refreshTokens = [];
+
+function generateRefreshToken(user) {
+    const token = jwt.sign(user, process.env.REFRESH_SECRET, { expiresIn: "7d" });
+    refreshTokens.push(token);
+    return token;
+}
+
 app.use(express.json());
 
 mongoose.connect(mongo_uri)
@@ -99,14 +107,33 @@ app.post('/LOGIN',async(req,res)=>
     
 })
 
+
+
 //asked chatgpt
 app.use(express.static(path.join(__dirname))); 
 app.post('/TODO',verifyToken,(req,res)=>
 {
-    res.sendFile(path.join(__dirname,"TODO.html"))
-    //res.status(200).send("SUCCESFULLY LOGGED IN")
+    //res.redirect(path.join(__dirname,"TODO.html"))
+    res.status(200).send("SUCCESFULLY LOGGED IN")
     console.log("TODO ACCESSED");
 })
+
+app.post("/refresh", (req, res) => {
+    const { token } = req.body;
+    if (!token) return res.sendStatus(401);
+    if (!refreshTokens.includes(token)) return res.sendStatus(403);
+
+    jwt.verify(token, process.env.REFRESH_SECRET, (err, user) => {
+        if (err) return res.sendStatus(403);
+        const newAccessToken = jwt.sign(
+            { id: user.id, username: user.username },
+            secret,
+            { expiresIn: "60s" }
+        );
+        res.json({ accessToken: newAccessToken });
+    });
+});
+
 
 app.listen(port,()=>
 {
